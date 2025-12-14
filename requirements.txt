@@ -3,3 +3,9 @@ scipy
 matplotlib
 plotly
 mplfinance
+python-dotenv
+requests
+transformers
+torch
+schedule
+pandas
