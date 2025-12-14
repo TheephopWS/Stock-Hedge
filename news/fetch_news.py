@@ -1,4 +1,10 @@
 import requests
+from pathlib import Path
+import sys
+import json
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from config.settings import NEWSAPI_KEY
 
 class NewsAPI:
@@ -39,4 +45,14 @@ class NewsAPI:
         data = response.json()
 
         return data.get("articles", [])
+
+if __name__ == "__main__":
+    # Sample use case
+    news_api = NewsAPI()
+    articles = news_api.fetch_news()
+    with open('data/sample_news.json', 'w') as j:
+        json.dump(articles, j, indent=4)
+        
+    for article in articles:
+        print(f"Title: {article['title']}\nDescription: {article['description']}\n")
 
