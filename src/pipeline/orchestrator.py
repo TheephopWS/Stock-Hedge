@@ -12,9 +12,17 @@ class NewsOrchestrator:
         self.news_api = NewsAPI()
         self.sentiment_analyzer = SentimentAnalyzer()
         self.processed_urls = set() # Keep to set for uniqueness
+        self.bullish_articles = set()
+        self.bearish_articles = set()
+
+    def get_num_bullish_articles(self):
+        return len(self.bullish_articles)
+    
+    def get_num_bearish_articles(self):
+        return len(self.bearish_articles)
 
     def run_cycle(self):
-        articles = self.news_api.fetch_news()
+        articles = self.news_api.fetch_news(page_size=100)
 
         news_articles = [
             a for a in articles if a.get("url") not in self.processed_urls
@@ -30,7 +38,8 @@ class NewsOrchestrator:
             self.processed_urls = set(list(self.processed_urls)[-500:])
 
         print("Cycle complete. Processed articles:", len(news_articles))
-        
+        print("Number of Bullish articles:", self.get_num_bullish_articles())
+        print("Number of Bearish articles:", self.get_num_bearish_articles())
 
     def _process_article(self, article: dict):
         title = article.get("title", "")
@@ -41,6 +50,12 @@ class NewsOrchestrator:
 
         if sentiment_result["signal"] == "NEUTRAL":
             return  # Skip neutral articles
+        
+        elif sentiment_result["signal"] == "BULLISH":
+            self.bullish_articles.add(article.get("url"))
+
+        elif sentiment_result["signal"] == "BEARISH":
+            self.bearish_articles.add(article.get("url"))
         
         print(f"Title: {title}")
         print(f"Sentiment: {sentiment_result['label'].upper()} (Score: {sentiment_result['score']:.4f})")
